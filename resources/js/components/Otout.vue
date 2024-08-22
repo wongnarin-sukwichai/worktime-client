@@ -124,6 +124,15 @@
             </div>
 
             <form class="mt-8" @submit.prevent="sendData()">
+                <div class="flex justify-center items-center">
+                    <textarea
+                        class="mb-4 pt-4 text-center border-2 border-gray-300 border-dotted rounded-lg text-2xl text-sky-800 w-1/2 focus:outline-none focus:border-sky-400 focus:ring-sky-400"
+                        type="text"              
+                        placeholder="** ห้ามเว้นว่าง, หากไม่มีคอมเม้น กรุณาพิมพ์ -"
+                        required
+                        v-model="record.otherout"
+                    ></textarea>
+                </div>
                 <div class="relative mb-4 flex flex-wrap items-stretch">
                     <input
                         type="text"
@@ -131,7 +140,6 @@
                         aria-label="Example text with button addon"
                         aria-describedby="button-addon1"
                         style="text-align: center"
-                        autofocus
                         v-model="record.uid"
                     />
                 </div>
@@ -156,6 +164,7 @@ export default {
             imageCapture: "",
             record: {
                 uid: "",
+                otherout: "",
                 capture: "",
             },
             profile: "",
@@ -165,59 +174,66 @@ export default {
     },
     methods: {
         async sendData() {
-            let formData = new FormData();
-
-            try {
-                await this.imageCapture.takePhoto().then((blob) => {
-                    formData.append("file", blob);
-                });
-
-                await this.$store.dispatch("storeUpload", formData);
-
-                this.record.capture = this.$store.getters.getImageName;
-            } catch (err) {
-                console.log("Something went wrong vue : ", err);
-            }
-
-            try {
-                await this.$store.dispatch("storeOtout", this.record);
-
-                //cap หน้าจอแล้วแสดงภาพ
-                const context = this.$refs.showCapture.getContext("2d");
-                context.drawImage(this.$refs.webcam, 0, 0, 80, 80);
-
-                if (this.recordList.length <= 4) {
-                    this.recordList.push({
-                        name: this.profileName(),
-                        time: this.timeOut(),
-                    });
-                } else {
-                    this.recordList.splice(0, 1);
-                    this.recordList.push({
-                        name: this.profileName(),
-                        time: this.timeOut(),
-                    });
-                }
-
-                this.profile = this.profileName();
-                this.timeout = this.timeOut();
-                
-            } catch (err) {
-                
-                this.profile = '';
-                this.timeout = '';
-
+            if (this.record.otherout == "") {
                 Swal.fire({
                     icon: "error",
-                    title: "ผิดพลาด",
-                    text: "กรุณาตรวจสอบการเชื่อมต่ออินเตอร์เน็ต และ รหัส",
-                    timer: 1500,
+                    title: "ผิดพลาด!",
+                    text: "** คอมเม้นต์ไม่สามารถเว้นว่างได้, กรุณาพิมพ์ - หากไม่มีคอมเม้นต์ **",
                 });
-                // console.log("Something went wrong store : ", err);
-            }
+            } else {
+                let formData = new FormData();
 
-            this.record.uid = "";
-            this.record.capture = "";
+                try {
+                    await this.imageCapture.takePhoto().then((blob) => {
+                        formData.append("file", blob);
+                    });
+
+                    await this.$store.dispatch("storeUpload", formData);
+
+                    this.record.capture = this.$store.getters.getImageName;
+                } catch (err) {
+                    console.log("Something went wrong vue : ", err);
+                }
+
+                try {
+                    await this.$store.dispatch("storeOtout", this.record);
+
+                    //cap หน้าจอแล้วแสดงภาพ
+                    const context = this.$refs.showCapture.getContext("2d");
+                    context.drawImage(this.$refs.webcam, 0, 0, 80, 80);
+
+                    if (this.recordList.length <= 4) {
+                        this.recordList.push({
+                            name: this.profileName(),
+                            time: this.timeOut(),
+                        });
+                    } else {
+                        this.recordList.splice(0, 1);
+                        this.recordList.push({
+                            name: this.profileName(),
+                            time: this.timeOut(),
+                        });
+                    }
+
+                    this.profile = this.profileName();
+                    this.timeout = this.timeOut();
+                } catch (err) {
+                    this.profile = "";
+                    this.timeout = "";
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "ผิดพลาด",
+                        text: "กรุณาตรวจสอบการเชื่อมต่ออินเตอร์เน็ต และ รหัสสมาชิก",
+                        timer: 6000,
+                    });
+                    // console.log("Something went wrong store : ", err);
+                }
+
+                this.record.uid = "";
+                this.record.otherout = "";
+                this.record.capture = "";
+            }
         },
 
         startWebcam() {

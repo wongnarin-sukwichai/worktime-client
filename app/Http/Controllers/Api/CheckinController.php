@@ -130,6 +130,7 @@ class CheckinController extends Controller
     {
         $request->validate([
             'uid' => 'required',
+            'otherin' => 'required',
             'capture' => 'required'
         ]);
 
@@ -141,7 +142,6 @@ class CheckinController extends Controller
         $time = $now->format('H:i:s');
 
         $res = Member::where('uid', $request['uid'])->first();
-
 
         if (empty($res)) {
 
@@ -162,7 +162,7 @@ class CheckinController extends Controller
             $data->m = $m;
             $data->y = $y;
             $data->timein = $time;
-            $data->otherin = null;
+            $data->otherin = $request['otherin'];
             $data->created = null;
 
             $data->save();
@@ -176,6 +176,7 @@ class CheckinController extends Controller
     {
         $request->validate([
             'uid' => 'required',
+            'otherout' => 'required',
             'capture' => 'required'
         ]);
 
@@ -208,7 +209,7 @@ class CheckinController extends Controller
             $data->m = $m;
             $data->y = $y;
             $data->timeout = $time;
-            $data->otherout = null;
+            $data->otherout = $request['otherout'];
             $data->created = null;
 
             $data->save();

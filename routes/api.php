@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\UploadController;
+use App\Http\Controllers\Api\ServiceController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,3 +22,4 @@ Route::resource('upload', UploadController::class);
 Route::post('checkout', [CheckinController::class, 'checkout']);
 Route::post('otin', [CheckinController::class, 'otin']);
 Route::post('otout', [CheckinController::class, 'otout']);
+Route::get('getService', [ServiceController::class, 'getService']);

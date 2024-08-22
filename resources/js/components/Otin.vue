@@ -84,6 +84,11 @@
                         <div
                             class="border-dotted border-2 border-orange-300 rounded-lg p-2 ml-2"
                         >
+                            {{ rec.otherin }}
+                        </div>
+                        <div
+                            class="border-dotted border-2 border-orange-300 rounded-lg p-2 ml-2"
+                        >
                             {{ rec.time }}
                         </div>
                     </div>
@@ -124,6 +129,29 @@
             </div>
 
             <form class="mt-8" @submit.prevent="sendData()">
+                <fieldset class="flex justify-center mb-4 border-2 border-sky-400 border-dotted rounded-lg p-3">
+                    <div
+                        class="flex items-center mr-4"
+                        v-for="(service, index) in serviceList"
+                        :key="index"
+                    >
+                        <input
+                            type="radio"
+                            :value="service.title"
+                            class="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300 cursor-pointer"
+                            aria-labelledby="country-option-1"
+                            aria-describedby="country-option-1"
+                            v-model="this.record.otherin"
+                        />
+                        <label
+                            for="country-option-1"
+                            class="text-md font-medium text-gray-900 ml-2 block"
+                        >
+                            {{ service.title }}
+                        </label>
+                    </div>
+                </fieldset>
+
                 <div class="relative mb-4 flex flex-wrap items-stretch">
                     <input
                         type="text"
@@ -144,10 +172,12 @@
 import { computed } from "vue";
 import store from "../store";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 export default {
     mounted() {
         this.startWebcam();
+        this.getSystem();
     },
     data() {
         return {
@@ -156,68 +186,86 @@ export default {
             imageCapture: "",
             record: {
                 uid: "",
+                otherin: "",
                 capture: "",
             },
             profile: "",
             timein: "",
             recordList: [],
+            serviceList: "",
         };
     },
     methods: {
+        getSystem() {
+            axios
+                .get("/api/getService")
+                .then((response) => {
+                    this.serviceList = response.data;
+                })
+                .catch((err) => {});
+        },
         async sendData() {
-            let formData = new FormData();
-
-            try {
-                await this.imageCapture.takePhoto().then((blob) => {
-                    formData.append("file", blob);
-                });
-
-                await this.$store.dispatch("storeUpload", formData);
-
-                this.record.capture = this.$store.getters.getImageName;
-            } catch (err) {
-                console.log("Something went wrong vue : ", err);
-            }
-
-            try {
-                await this.$store.dispatch("storeOtin", this.record);
-
-                //cap หน้าจอแล้วแสดงภาพ
-                const context = this.$refs.showCapture.getContext("2d");
-                context.drawImage(this.$refs.webcam, 0, 0, 80, 80);
-
-                if (this.recordList.length <= 4) {
-                    this.recordList.push({
-                        name: this.profileName(),
-                        time: this.timeIn(),
-                    });
-                } else {
-                    this.recordList.splice(0, 1);
-                    this.recordList.push({
-                        name: this.profileName(),
-                        time: this.timeIn(),
-                    });
-                }
-
-                this.profile = this.profileName();
-                this.timein = this.timeIn();
-
-            } catch (err) {
-
-                this.profile = '';
-                this.timein = '';
-
+            if (this.record.otherin == "") {
                 Swal.fire({
                     icon: "error",
-                    title: "ผิดพลาด",
-                    text: "กรุณาตรวจสอบการเชื่อมต่ออินเตอร์เน็ต และ รหัส",
-                    timer: 1500,
+                    title: "ผิดพลาด!",
+                    text: "** กรุณาเลือกหน้าที่ปฏิบัติงาน **",
                 });
-                // console.log("Something went wrong store : ", err);
-            }
+            } else {
+                let formData = new FormData();
+                try {
+                    await this.imageCapture.takePhoto().then((blob) => {
+                        formData.append("file", blob);
+                    });
 
-            this.record.uid = "";
-            this.record.capture = "";
+                    await this.$store.dispatch("storeUpload", formData);
+
+                    this.record.capture = this.$store.getters.getImageName;
+                } catch (err) {
+                    console.log("Something went wrong vue : ", err);
+                }
+
+                try {
+                    await this.$store.dispatch("storeOtin", this.record);
+
+                    //cap หน้าจอแล้วแสดงภาพ
+                    const context = this.$refs.showCapture.getContext("2d");
+                    context.drawImage(this.$refs.webcam, 0, 0, 80, 80);
+
+                    if (this.recordList.length <= 4) {
+                        this.recordList.push({
+                            name: this.profileName(),
+                            otherin: this.otherIn(),
+                            time: this.timeIn(),
+                        });
+                    } else {
+                        this.recordList.splice(0, 1);
+                        this.recordList.push({
+                            name: this.profileName(),
+                            otherin: this.otherIn(),
+                            time: this.timeIn(),
+                        });
+                    }
+
+                    this.profile = this.profileName();
+                    this.timein = this.timeIn();
+                } catch (err) {
+                    this.profile = "";
+                    this.timein = "";
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "ไม่สามารถบันทึกข้อมูล",
+                        text: "** กรุณาตรวจสอบรหัสสมาชิก, การเชื่อมต่ออินเตอร์เน็ต **",
+                        timer: 6000,
+                    });
+                    // console.log("Something went wrong store : ", err);
+                }
+
+                this.record.uid = "";
+                this.record.otherin = "";
+                this.record.capture = "";
+            }
         },
 
         startWebcam() {
@@ -237,13 +285,14 @@ export default {
                     });
             }
         },
-
         profileName() {
             return this.$store.getters.getProfileName;
         },
-
         timeIn() {
             return this.$store.getters.getTimeIn + " น.";
+        },
+        otherIn() {
+            return this.$store.getters.getOtherin;
         },
     },
 };

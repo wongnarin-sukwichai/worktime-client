@@ -20,6 +20,9 @@ export default {
         },
         getTimeOut(state) {
             return state.checkin.timeout
+        },
+        getOtherin(state) {
+            return state.checkin.otherin
         }
     },
     mutations: {

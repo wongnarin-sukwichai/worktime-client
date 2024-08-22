@@ -211,8 +211,8 @@ export default {
                 Swal.fire({
                     icon: "error",
                     title: "ผิดพลาด",
-                    text: "กรุณาตรวจสอบการเชื่อมต่ออินเตอร์เน็ต และ รหัส",
-                    timer: 1500,
+                    text: "กรุณาตรวจสอบการเชื่อมต่ออินเตอร์เน็ต และ รหัสสมาชิก",
+                    timer: 6000,
                 });
                 // console.log("Something went wrong store : ", err);
             }
@@ -249,3 +249,10 @@ export default {
     },
 };
 </script>
+
+<style>
+video {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+</style>

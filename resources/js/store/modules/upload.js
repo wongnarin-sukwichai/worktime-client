@@ -26,6 +26,7 @@ export default {
 
         async storeUpload({ dispatch }, payload) {
 
+            await axios.get('/sanctum/csrf-cookie')
             const config = {                                    //ใส่ทุกครั้งที่รับ File เข้ามา
                 headers: {
                     'content-type': 'multipart/form-data'
@@ -33,8 +34,7 @@ export default {
             }
 
             try {
-                await axios.get('/sanctum/csrf-cookie')
-                await axios.post('http://202.28.34.39:8081/api/upload', payload, config)
+                await axios.post('http://202.28.32.99:8080/api/upload', payload, config)
                 .then((response) => {
                     return dispatch('getImageName', response.data)
                     //console.log(response.data)
