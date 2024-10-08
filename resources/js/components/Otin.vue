@@ -137,7 +137,7 @@
                     >
                         <input
                             type="radio"
-                            :value="service.title"
+                            :value="service.id"
                             class="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300 cursor-pointer"
                             aria-labelledby="country-option-1"
                             aria-describedby="country-option-1"
