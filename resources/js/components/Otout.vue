@@ -128,8 +128,7 @@
                     <textarea
                         class="mb-4 pt-4 text-center border-2 border-gray-300 border-dotted rounded-lg text-2xl text-sky-800 w-1/2 focus:outline-none focus:border-sky-400 focus:ring-sky-400"
                         type="text"              
-                        placeholder="** ห้ามเว้นว่าง, หากไม่มีคอมเม้น กรุณาพิมพ์ -"
-                        required
+                        placeholder="*** หมายเหตุ ***"
                         v-model="record.otherout"
                     ></textarea>
                 </div>
@@ -174,13 +173,13 @@ export default {
     },
     methods: {
         async sendData() {
-            if (this.record.otherout == "") {
+            /** if (this.record.otherout == "") {
                 Swal.fire({
                     icon: "error",
                     title: "ผิดพลาด!",
                     text: "** คอมเม้นต์ไม่สามารถเว้นว่างได้, กรุณาพิมพ์ - หากไม่มีคอมเม้นต์ **",
                 });
-            } else {
+            } else { */
                 let formData = new FormData();
 
                 try {
@@ -233,7 +232,7 @@ export default {
                 this.record.uid = "";
                 this.record.otherout = "";
                 this.record.capture = "";
-            }
+            //}
         },
 
         startWebcam() {

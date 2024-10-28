@@ -176,7 +176,6 @@ class CheckinController extends Controller
     {
         $request->validate([
             'uid' => 'required',
-            'otherout' => 'required',
             'capture' => 'required'
         ]);
 
@@ -209,7 +208,9 @@ class CheckinController extends Controller
             $data->m = $m;
             $data->y = $y;
             $data->timeout = $time;
+            if(!empty($request['otherout'])) {
             $data->otherout = $request['otherout'];
+            }
             $data->created = null;
 
             $data->save();
